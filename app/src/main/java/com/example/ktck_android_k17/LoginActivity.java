@@ -28,7 +28,7 @@ import java.util.concurrent.Executors;
  * Activity xử lý đăng nhập người dùng.
  * Sử dụng LoginRequest DTO để thu thập dữ liệu và UserAdapter để chuyển đổi.
  */
-public class LoginActivity extends AppCompatActivity {
+public class  LoginActivity extends AppCompatActivity {
 
     private static final String PREF_NAME = "TaskManagerPrefs";
     private static final String KEY_USER_ID = "user_id";
@@ -210,73 +210,6 @@ public class LoginActivity extends AppCompatActivity {
      * Thực hiện đăng nhập.
      */
     private void performLogin() {
-        String email = edtEmail.getText().toString().trim();
-        String password = edtPassword.getText().toString().trim();
-
-        // Tạo LoginRequest DTO
-        LoginRequest loginRequest = new LoginRequest(email, password);
-
-        // Validate input
-        if (!validateInput(loginRequest)) {
-            return;
-        }
-
-        // Hiển thị loading
-        showLoading(true);
-
-        // Thực hiện đăng nhập trên background thread
-        executorService.execute(() -> {
-            try {
-                // Bước 1: Kiểm tra email có tồn tại không
-                User userByEmail = userDAO.findByEmail(loginRequest.getEmail());
-
-                if (userByEmail == null) {
-                    // Email không tồn tại
-                    mainHandler.post(() -> {
-                        showLoading(false);
-                        edtEmail.setError("Email không tồn tại");
-                        edtEmail.requestFocus();
-                        Toast.makeText(LoginActivity.this,
-                                "Email không tồn tại trong hệ thống", Toast.LENGTH_SHORT).show();
-                    });
-                    return;
-                }
-
-                // Bước 2: Kiểm tra mật khẩu
-                User user = userDAO.validateLogin(loginRequest.getEmail(), loginRequest.getPassword());
-
-                mainHandler.post(() -> {
-                    showLoading(false);
-
-                    if (user != null) {
-                        // Chuyển đổi User sang UserDTO (loại bỏ password)
-                        UserDTO userDTO = UserAdapter.toDTO(user);
-
-                        // Lưu thông tin đăng nhập
-                        saveUserSession(userDTO);
-
-                        // Thông báo thành công
-                        Toast.makeText(LoginActivity.this,
-                                getString(R.string.success_login), Toast.LENGTH_SHORT).show();
-
-                        // Chuyển đến MainActivity
-                        navigateToMain();
-                    } else {
-                        // Email đúng nhưng mật khẩu sai
-                        edtPassword.setError("Mật khẩu không đúng");
-                        edtPassword.requestFocus();
-                        Toast.makeText(LoginActivity.this,
-                                "Mật khẩu không đúng", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            } catch (Exception e) {
-                mainHandler.post(() -> {
-                    showLoading(false);
-                    Toast.makeText(LoginActivity.this,
-                            getString(R.string.error_connection) + ": " + e.getMessage(), Toast.LENGTH_LONG).show();
-                });
-            }
-        });
     }
 
     /**
